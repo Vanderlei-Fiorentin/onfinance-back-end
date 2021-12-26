@@ -1,0 +1,56 @@
+<?xml version="1.0"?>
+<queries>
+    <query name="findParcelasAVencerByCompetencia">        
+        SELECT parcela
+          FROM ParcelaLanctoContabilEntity parcela
+         WHERE vencimento >= :data
+           AND MONTH(vencimento) = MONTH(:data)
+           AND YEAR(vencimento) = YEAR(:data)
+           AND COALESCE((SELECT SUM(pagamento.valor) 
+                           FROM PagamentoEntity pagamento 
+                          WHERE pagamento.fatura = parcela.fatura), 0) < parcela.fatura.valor      
+    </query>
+    <query name="findParcelasEmAberto">        
+        SELECT parcela
+          FROM ParcelaLanctoContabilEntity parcela
+         WHERE parcela.lanctoContabil.id = :idLancto
+           AND COALESCE((SELECT SUM(pagamento.valor) 
+                           FROM PagamentoEntity pagamento 
+                          WHERE pagamento.fatura = parcela.fatura), 0) < parcela.fatura.valor
+         ORDER BY parcela.vencimento ASC
+    </query>
+    <query name="findParcelasByFiltro">        
+        SELECT parcela
+          FROM ParcelaLanctoContabilEntity parcela
+         WHERE parcela.lanctoContabil.tipoLancto = :tipoLancto
+           AND parcela.vencimento BETWEEN :dataInicial AND :dataFinal
+           AND ((:situacao = 'A' AND COALESCE((SELECT SUM(pagamento.valor) 
+                                                 FROM PagamentoEntity pagamento 
+                                                WHERE pagamento.fatura = parcela.fatura), 0) < parcela.fatura.valor AND parcela.vencimento >= :today) 
+                OR (:situacao = 'V' AND COALESCE((SELECT SUM(pagamento.valor) 
+                                                    FROM PagamentoEntity pagamento 
+                                                   WHERE pagamento.fatura = parcela.fatura), 0) < parcela.fatura.valor AND parcela.vencimento < :today)
+                OR (:situacao = 'P' AND COALESCE((SELECT SUM(pagamento.valor) 
+                                                    FROM PagamentoEntity pagamento 
+                                                   WHERE pagamento.fatura = parcela.fatura), 0) >= parcela.fatura.valor)
+                )
+           AND parcela.lanctoContabil.tipoPagto <> 'T'")
+         ORDER BY parcela.vencimento
+    </query>
+    <query name="findParcelasDesvinculadas">        
+        SELECT parcela
+          FROM ParcelaLanctoContabilEntity parcela 
+         WHERE parcela.fatura IS NULL 
+         ORDER BY parcela.vencimento
+    </query>
+    <query name="findByLanctoEntrada">        
+        SELECT parcela
+          FROM ParcelaLanctoContabilEntity parcela 
+         WHERE parcela.lanctoContabil.id = :idLancto
+    </query>
+    <query name="findByFatura">        
+        SELECT parcela
+          FROM ParcelaLanctoContabilEntity parcela 
+         WHERE parcela.fatura.id = :idFatura
+    </query>
+</queries>

@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-configuration PUBLIC "-//Hibernate/Hibernate Configuration DTD 3.0//EN" "http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">
+<!--
+DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
+Copyright (c) 2008, 2016 Oracle and/or its affiliates. All rights reserved.
+Oracle and Java are registered trademarks of Oracle and/or its affiliates.
+Other names may be trademarks of their respective owners.
+The contents of this file are subject to the terms of either the GNU
+General Public License Version 2 only ("GPL") or the Common
+Development and Distribution License("CDDL") (collectively, the
+"License"). You may not use this file except in compliance with the
+License. You can obtain a copy of the License at
+http://www.netbeans.org/cddl-gplv2.html
+or nbbuild/licenses/CDDL-GPL-2-CP. See the License for the
+specific language governing permissions and limitations under the
+License.  When distributing the software, include this License Header
+Notice in each file and include the License file at
+nbbuild/licenses/CDDL-GPL-2-CP.  Oracle designates this
+particular file as subject to the "Classpath" exception as provided
+by Oracle in the GPL Version 2 section of the License file that
+accompanied this code. If applicable, add the following below the
+License Header, with the fields enclosed by brackets [] replaced by
+your own identifying information:
+"Portions Copyrighted [year] [name of copyright owner]"
+If you wish your version of this file to be governed by only the CDDL
+or only the GPL Version 2, indicate your decision by adding
+"[Contributor] elects to include this software in this distribution
+under the [CDDL or GPL Version 2] license." If you do not indicate a
+single choice of license, a recipient has the option to distribute
+your version of this file under either the CDDL, the GPL Version 2 or
+to extend the choice of license to its licensees as provided above.
+However, if you add GPL Version 2 code and therefore, elected the GPL
+Version 2 license, then the option applies only if the new code is
+made subject to such option by the copyright holder.
+Contributor(s):
+-->
+<hibernate-configuration>
+    <session-factory>
+        <!--<property name="hibernate.dialect">org.hibernate.dialect.MySQLDialect</property>
+        <property name="hibernate.connection.url">jdbc:mysql://localhost:3306/sistema_contabil?useTimezone=true&amp;serverTimezone=America/Sao_Paulo</property>
+        <property name="hibernate.connection.username">root</property>-->
+        <property name="hibernate.dialect">org.hibernate.dialect.SybaseDialect</property>
+        <property name="hibernate.connection.driver">com.sybase.jdbc4.jdbc.SybDriver</property>
+        <property name="hibernate.connection.url">jdbc:sybase:Tds:localhost:2638?ServiceName=srvFinanceiro</property>
+        <property name="hibernate.connection.username">financeiro</property>
+        <property name="hibernate.connection.password">financeiro</property>
+        <property name="show_sql">false</property>
+        <property name="format_sql">false</property>
+        <mapping class="com.onfinance.entities.AgenciaEntity"></mapping>
+        <mapping class="com.onfinance.entities.BancoEntity"></mapping>
+        <mapping class="com.onfinance.entities.BandeiraEntity"></mapping>
+        <mapping class="com.onfinance.entities.CartaoCreditoEntity"></mapping>
+        <mapping class="com.onfinance.entities.CategoriaProdutoEntity"></mapping>
+        <mapping class="com.onfinance.entities.ContaEntity"></mapping>
+        <mapping class="com.onfinance.entities.DocumentoPagamentoEntity"></mapping>
+        <mapping class="com.onfinance.entities.DocumentoLanctoContabilEntity"></mapping>
+        <mapping class="com.onfinance.entities.EmpresaEntity"></mapping>
+        <mapping class="com.onfinance.entities.EventoEntity"></mapping>
+        <mapping class="com.onfinance.entities.EventoLanctoEntradaEntity"></mapping>
+        <mapping class="com.onfinance.entities.ExtratoBancarioEntity"></mapping>
+        <mapping class="com.onfinance.entities.FaturaEntity"></mapping>
+        <mapping class="com.onfinance.entities.LanctoContabilEntity"></mapping>  
+        <mapping class="com.onfinance.entities.PagamentoEntity"></mapping>         
+        <mapping class="com.onfinance.entities.ParcelaLanctoContabilEntity"></mapping>
+        <mapping class="com.onfinance.entities.PerfilUsuarioEntity"></mapping>
+        <mapping class="com.onfinance.entities.PeriodicActionEntity"></mapping>
+        <mapping class="com.onfinance.entities.PermissaoEntity"></mapping>
+        <mapping class="com.onfinance.entities.PermissaoRecursoEntity"></mapping>
+        <mapping class="com.onfinance.entities.PermissaoRoleEntity"></mapping>
+        <mapping class="com.onfinance.entities.ProdutoEntity"></mapping>
+        <mapping class="com.onfinance.entities.ProdutoLanctoSaidaEntity"></mapping>
+        <mapping class="com.onfinance.entities.RecursoEntity"></mapping>
+        <mapping class="com.onfinance.entities.RoleEntity"></mapping>
+        <mapping class="com.onfinance.entities.RotinaAutomaticaEntity"></mapping>
+        <mapping class="com.onfinance.entities.SaidaLanctoEntradaEntity"></mapping>
+        <mapping class="com.onfinance.entities.TransferenciaBancariaEntity"></mapping>
+        <mapping class="com.onfinance.entities.UnidadeMedidaEntity"></mapping>
+        <mapping class="com.onfinance.entities.UsuarioEntity"></mapping>
+        <mapping class="com.onfinance.entities.UsuarioRoleEntity"></mapping>
+    </session-factory>
+</hibernate-configuration>

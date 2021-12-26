@@ -1,0 +1,89 @@
+<?xml version="1.0"?>
+<queries>
+    <query name="findPagamentosByFiltro">        
+        SELECT new PagamentoEntity(fatura,
+                                   MAX(cartaoPagamento),
+                                   MAX(contaPagamento),
+                                   SUM(COALESCE(pagamento.valor, 0)),
+                                   SUM(COALESCE(pagamento.juros, 0)),
+                                   SUM(COALESCE(pagamento.multa, 0)),
+                                   SUM(COALESCE(pagamento.desconto, 0)),
+                                   MAX(COALESCE(pagamento.tipoPagamento, ' ')))
+          FROM FaturaEntity fatura
+               LEFT OUTER JOIN PagamentoEntity pagamento ON(pagamento.fatura.id = fatura.id)
+               LEFT OUTER JOIN ContaEntity contaPagamento ON(contaPagamento = pagamento.conta)
+               LEFT OUTER JOIN CartaoCreditoEntity cartaoPagamento ON(cartaoPagamento = pagamento.cartao)
+         WHERE fatura.vencimento BETWEEN :dataInicial AND :dataFinal
+           AND (:empresa = 0 OR fatura.empresa.id = :empresa)
+           AND EXISTS(SELECT 1
+                        FROM ParcelaLanctoContabilEntity parcela
+                             INNER JOIN LanctoContabilEntity lancto ON(lancto.id = parcela.lanctoContabil.id)
+                             LEFT OUTER JOIN ContaEntity conta ON(conta = COALESCE(lancto.conta, lancto.cartao.conta))
+                       WHERE parcela.fatura.id = fatura.id
+                         AND (:tipoLancto = 'TD' OR lancto.tipoLancto = :tipoLancto)
+                         AND ('TD' IN(:tipoPagto) OR lancto.tipoPagto IN(:tipoPagto))
+                         AND (:usuario = 0 OR conta.usuario.id = :usuario))
+           AND (:situacao = 'TD' 
+                OR (:situacao = 'A' AND fatura.vencimento >= :today AND COALESCE((SELECT SUM(pagamento.valor) 
+                                                                                 FROM PagamentoEntity pagamento 
+                                                                                WHERE pagamento.fatura = fatura), 0) < fatura.valor) 
+                OR (:situacao = 'V' AND fatura.vencimento < :today AND COALESCE((SELECT SUM(pagamento.valor) 
+                                                                                   FROM PagamentoEntity pagamento 
+                                                                                  WHERE pagamento.fatura = fatura), 0) < fatura.valor) 
+                OR (:situacao = 'P' AND COALESCE((SELECT SUM(pagamento.valor) 
+                                                   FROM PagamentoEntity pagamento 
+                                                  WHERE pagamento.fatura = fatura), 0) >= fatura.valor)
+                )
+         GROUP BY fatura        
+    </query>
+    <query name="findTotalPagamentos">        
+        SELECT SUM(COALESCE(pagamento.valor, fatura.valor))
+          FROM FaturaEntity fatura
+               LEFT OUTER JOIN PagamentoEntity pagamento ON(pagamento.fatura.id = fatura.id)
+               LEFT OUTER JOIN ContaEntity contaPagamento ON(contaPagamento = pagamento.conta)
+               LEFT OUTER JOIN CartaoCreditoEntity cartaoPagamento ON(cartaoPagamento = pagamento.cartao)
+         WHERE fatura.vencimento BETWEEN :dataInicial AND :dataFinal
+           AND (:empresa = 0 OR fatura.empresa.id = :empresa)
+           AND EXISTS(SELECT 1
+                        FROM ParcelaLanctoContabilEntity parcela
+                             INNER JOIN LanctoContabilEntity lancto ON(lancto.id = parcela.lanctoContabil.id)
+                             LEFT OUTER JOIN ContaEntity conta ON(conta = COALESCE(lancto.conta, lancto.cartao.conta))
+                       WHERE parcela.fatura.id = fatura.id
+                         AND (:tipoLancto = 'TD' OR lancto.tipoLancto = :tipoLancto)
+                         AND ('TD' IN(:tipoPagto) OR lancto.tipoPagto IN(:tipoPagto))
+                         AND (:usuario = 0 OR conta.usuario.id = :usuario))
+           AND (:situacao = 'TD' 
+                OR (:situacao = 'A' AND fatura.vencimento >= :today AND COALESCE((SELECT SUM(pagamento.valor) 
+                                                                                 FROM PagamentoEntity pagamento 
+                                                                                WHERE pagamento.fatura = fatura), 0) < fatura.valor) 
+                OR (:situacao = 'V' AND fatura.vencimento < :today AND COALESCE((SELECT SUM(pagamento.valor) 
+                                                                                   FROM PagamentoEntity pagamento 
+                                                                                  WHERE pagamento.fatura = fatura), 0) < fatura.valor) 
+                OR (:situacao = 'P' AND COALESCE((SELECT SUM(pagamento.valor) 
+                                                   FROM PagamentoEntity pagamento 
+                                                  WHERE pagamento.fatura = fatura), 0) >= fatura.valor)
+                )       
+    </query>
+    <query name="findByFatura">        
+        SELECT new PagamentoEntity(fatura,
+                                   MAX(COALESCE(cartaoPagamento, lancto.cartao)),
+                                   MAX(COALESCE(contaPagamento, lancto.conta)),
+                                   SUM(COALESCE(pagamento.valor, 0)),
+                                   SUM(COALESCE(pagamento.juros, 0)),
+                                   SUM(COALESCE(pagamento.multa, 0)),
+                                   SUM(COALESCE(pagamento.desconto, 0)),
+                                   MAX(COALESCE(pagamento.tipoPagamento, ' ')))
+          FROM FaturaEntity fatura 
+               INNER JOIN ParcelaLanctoContabilEntity parcela ON(parcela.fatura.id = fatura.id)
+               INNER JOIN LanctoContabilEntity lancto ON(lancto.id = parcela.lanctoContabil.id)
+               LEFT OUTER JOIN ContaEntity conta ON(conta = COALESCE(lancto.conta, lancto.cartao.conta)) 
+               LEFT OUTER JOIN PagamentoEntity pagamento ON(pagamento.fatura.id = fatura.id)
+               LEFT OUTER JOIN ContaEntity contaPagamento ON(contaPagamento = pagamento.conta)
+               LEFT OUTER JOIN CartaoCreditoEntity cartaoPagamento ON(cartaoPagamento = pagamento.cartao)
+         WHERE fatura.id = :idFatura 
+           AND parcela.id = (SELECT MAX(p.id)
+                               FROM ParcelaLanctoContabilEntity p
+                              WHERE p.fatura.id = fatura.id)
+         GROUP BY fatura       
+    </query>
+</queries>

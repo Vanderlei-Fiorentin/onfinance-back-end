@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<queries>
+    <query name="findByLanctoSaida">        
+        SELECT prodLancto
+          FROM ProdutoLanctoSaidaEntity prodLancto 
+         WHERE prodLancto.produtoLanctoSaidaID.lanctoSaida.id = :idLancto     
+    </query>
+    <query name="findByPeriodo">        
+        SELECT prodLancto.produtoLanctoSaidaID.produto.categoria.nome AS categoria,
+               SUM(prodLancto.valor / prodLancto.produtoLanctoSaidaID.lanctoSaida.parcelas) AS valor
+          FROM ProdutoLanctoSaidaEntity prodLancto
+               INNER JOIN ParcelaLanctoContabilEntity parcela ON parcela.lanctoContabil.id = prodLancto.produtoLanctoSaidaID.lanctoSaida.id               
+         WHERE parcela.fatura.vencimento BETWEEN :dataInicial AND :dataFinal
+         GROUP BY prodLancto.produtoLanctoSaidaID.produto.categoria.nome
+    </query>
+</queries>

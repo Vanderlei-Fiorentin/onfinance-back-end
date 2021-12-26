@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<queries>
+    <query name="findByUsuario">        
+        SELECT role.nome
+          FROM RoleEntity role
+               INNER JOIN UsuarioRoleEntity usuario ON usuario.usuarioRoleID.role = role
+         WHERE usuario.usuarioRoleID.usuario = :usuario        
+    </query>
+</queries>

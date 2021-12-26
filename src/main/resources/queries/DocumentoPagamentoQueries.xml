@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<queries>
+    <query name="findByIdUsuario">        
+        SELECT d
+          FROM DocumentoPagamentoEntity d 
+         WHERE d.upload = :status   
+    </query>
+    <query name="findByUploadAndNumeroTentativas">        
+        SELECT d
+          FROM DocumentoPagamentoEntity d
+         WHERE upload = :status
+           AND numeroTentativasRealizadas <= :maxTentativas
+           AND COALESCE(dataProximaExecucao, NOW()) <= NOW()   
+    </query>
+</queries>

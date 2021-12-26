@@ -1,0 +1,90 @@
+/* 
+ * Trigger que insere extrato bancário quando efetuado um pagamento/recebimento
+ */
+/**
+ * Author:  Vanderlei Fiorentin
+ * Created: 26 de dez. de 2021
+ */
+
+
+CREATE OR REPLACE FUNCTION INSERIR_EXTRATOS_BANCARIOS()
+RETURNS TRIGGER AS $$
+    DECLARE vDescricao VARCHAR(240);
+    DECLARE vTipoLancto CHAR(1);
+    DECLARE vSaldoAtual NUMERIC(12,2);
+    DECLARE vNovoSaldo NUMERIC(12,2);
+    DECLARE vConta INTEGER;
+    DECLARE vCartao INTEGER;
+    DECLARE vPossuiLanctoVinculado BOOLEAN;
+BEGIN
+    vPossuiLanctoVinculado := (SELECT COUNT(*)
+                                 FROM SAIDAS_LANCTO_ENTRADA S 
+                                      INNER JOIN PARCELAS_LANCTO_CONTABIL P ON(P.ID_PARCELA = S.ID_PARCELA)       
+                                WHERE P.ID_FATURA = NEW.ID_FATURA) > 0;
+
+    IF(vPossuiLanctoVinculado IS FALSE) THEN
+	
+	SELECT L.DESCRICAO, L.TIPO_LANCTO, L.ID_CONTA, L.ID_CARTAO
+          INTO vDescricao, vTipoLancto, vConta, vCartao 
+          FROM LANCTOS_CONTABEIS AS L 
+               INNER JOIN PARCELAS_LANCTO_CONTABIL P ON(P.ID_LANCTO = L.ID_LANCTO)
+         WHERE P.ID_FATURA = NEW.ID_FATURA
+         ORDER BY L.ID_LANCTO
+         LIMIT 1;
+
+        SELECT COALESCE(C.SALDO, 0)
+          INTO vSaldoAtual 
+          FROM CONTAS_CORRENTE AS C 
+         WHERE C.ID_CONTA = NEW.ID_CONTA;
+			 
+        IF(vCartao IS NULL) THEN 
+		
+            IF(vTipoLancto = 'E') THEN		 
+                vNovoSaldo := vSaldoAtual + (NEW.VALOR + NEW.JUROS + NEW.MULTA - NEW.DESCONTO);
+                INSERT INTO EXTRATOS_BANCARIOS(ID_EXTRATO,ID_PAGAMENTO,ID_CONTA,OPERACAO,HISTORICO,DT_OPERACAO,SALDO) VALUES(DEFAULT, NEW.ID_PAGAMENTO, NEW.ID_CONTA, 'E', vDescricao, NEW.DT_PAGTO, vNovoSaldo);		
+            ELSE 
+                vNovoSaldo := vSaldoAtual - (NEW.VALOR + NEW.JUROS + NEW.MULTA - NEW.DESCONTO);
+                INSERT INTO EXTRATOS_BANCARIOS(ID_EXTRATO,ID_PAGAMENTO,ID_CONTA,OPERACAO,HISTORICO,DT_OPERACAO,SALDO) VALUES(DEFAULT, NEW.ID_PAGAMENTO, NEW.ID_CONTA, 'S', vDescricao, NEW.DT_PAGTO, vNovoSaldo);
+            END IF;
+			
+        END IF;
+
+        IF(COALESCE(vCartao, 0) > 0) THEN 
+		
+            SELECT CONCAT('Fatura cartão final ', RIGHT(C.NUMERO, 4), ' ', B.NOME)
+              INTO vDescricao
+              FROM CARTOES_CREDITO AS C
+                   INNER JOIN CONTAS_CORRENTE AS CC ON(CC.ID_CONTA = C.ID_CONTA)
+                   INNER JOIN AGENCIAS AS A ON(A.ID_AGENCIA = CC.ID_AGENCIA)
+                   INNER JOIN BANCOS AS B ON(B.ID_BANCO = A.ID_BANCO)
+             WHERE C.ID_CARTAO = vCartao;
+
+            vNovoSaldo := vSaldoAtual - (NEW.VALOR + NEW.JUROS + NEW.MULTA - NEW.DESCONTO);
+            INSERT INTO EXTRATOS_BANCARIOS(ID_EXTRATO,ID_PAGAMENTO,ID_CONTA,OPERACAO,HISTORICO,DT_OPERACAO,SALDO) VALUES(DEFAULT, NEW.ID_PAGAMENTO, NEW.ID_CONTA, 'S', vDescricao, NEW.DT_PAGTO, vNovoSaldo);
+        END IF;
+		
+    END IF;
+
+    -- Caso a fatura seja de um lançamento entrada, seta como paga a fatura vinculada ao lançamento de saída
+    INSERT INTO PAGAMENTOS(ID_FATURA,ID_CARTAO,ID_CONTA,VALOR,JUROS,MULTA,DESCONTO,DT_PAGTO,TIPO_PAGTO)
+    SELECT F.ID_FATURA, NULL, NEW.ID_CONTA, F.VALOR, 0, 0, 0, NEW.DT_PAGTO, 'T'
+      FROM FATURAS F,
+           LANCTOS_CONTABEIS L,
+           SAIDAS_LANCTO_ENTRADA S,
+           PARCELAS_LANCTO_CONTABIL P,
+           PARCELAS_LANCTO_CONTABIL PE
+     WHERE S.ID_LANCTO = L.ID_LANCTO
+       AND P.ID_PARCELA = S.ID_PARCELA
+       AND F.ID_FATURA = P.ID_FATURA   
+       AND PE.ID_LANCTO = L.ID_LANCTO
+       AND PE.ID_FATURA = NEW.ID_FATURA;
+
+    RETURN NEW;
+		
+END; $$
+LANGUAGE plpgsql;
+
+CREATE OR REPLACE TRIGGER TGR_INSERIR_EXTRATOS_BANCARIOS AFTER INSERT ON PAGAMENTOS
+FOR EACH ROW 
+WHEN(NEW.DT_PAGTO IS NOT NULL AND NEW.ID_CARTAO IS NULL)
+EXECUTE PROCEDURE INSERIR_EXTRATOS_BANCARIOS();

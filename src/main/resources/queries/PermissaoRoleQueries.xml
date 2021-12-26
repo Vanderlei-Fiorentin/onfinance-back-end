@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<queries>
+    <query name="findByRecurso">        
+        SELECT p.permissaoRoleID.role.nome
+          FROM PermissaoRoleEntity p
+               INNER JOIN PermissaoRecursoEntity pr ON pr.permissaoRecursoID.permissao = p.permissaoRoleID.permissao
+         WHERE pr.permissaoRecursoID.recurso.id = :idRecurso        
+    </query>
+    <query name="findByRecursoAndRoles">        
+        SELECT p
+          FROM PermissaoRoleEntity p
+               INNER JOIN PermissaoRecursoEntity pr ON pr.permissaoRecursoID.permissao = p.permissaoRoleID.permissao
+         WHERE pr.permissaoRecursoID.recurso.id = :idRecurso   
+           AND p.permissaoRoleID.role.nome IN(:roles)     
+    </query>
+    <query name="findByRole">        
+        SELECT p
+          FROM PermissaoRoleEntity p
+         WHERE p.permissaoRoleID.role.id = :idRole       
+    </query>
+    <query name="findByPermissao">        
+        SELECT p
+          FROM PermissaoRoleEntity p
+         WHERE p.permissaoRoleID.permissao.id = :idPermissao      
+    </query>
+</queries>

@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<queries>
+    <query name="findByIdLancto">        
+        SELECT e
+          FROM EventoLanctoEntradaEntity e 
+         WHERE e.eventoLanctoEntradaID.lanctoEntrada.id = :idLancto       
+    </query>
+</queries>

@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<queries>
+    <query name="findByNome">        
+        SELECT p
+          FROM PeriodicActionConfiguracaoIntervaloExecucaoEntity p 
+         WHERE p.periodic.nome = :nome 
+         ORDER BY ordem     
+    </query>
+</queries>

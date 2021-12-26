@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<queries>
+    <query name="findByUsuario"> 
+        SELECT u
+          FROM UsuarioEntity u 
+         WHERE u.usuario = :usuario
+    </query>
+    <query name="findByEmail"> 
+        SELECT u
+          FROM UsuarioEntity u 
+         WHERE u.email = :email
+    </query>
+</queries>

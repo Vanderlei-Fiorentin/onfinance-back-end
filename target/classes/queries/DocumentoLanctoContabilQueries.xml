@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<queries>
+    <query name="findByLancto">        
+        SELECT d
+          FROM DocumentoLanctoContabilEntity d 
+         WHERE d.lancto.id = :idLancto      
+    </query>
+    <query name="findByUpload">        
+        SELECT d
+          FROM DocumentoLanctoContabilEntity d 
+         WHERE d.upload = :status      
+    </query>
+    <query name="findByUploadAndNumeroTentativas">        
+        SELECT d
+          FROM DocumentoLanctoContabilEntity d
+         WHERE upload = :status
+           AND numeroTentativasRealizadas <= :maxTentativas
+           AND COALESCE(dataProximaExecucao, NOW()) <= NOW()     
+    </query>
+</queries>

@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<queries>
+    <query name="findByIdUsuario">        
+        SELECT p
+          FROM PerfilUsuarioEntity p 
+         WHERE p.usuario.id = :idUsuario    
+    </query>
+    <query name="findByUsuario">        
+        SELECT p
+          FROM PerfilUsuarioEntity p 
+         WHERE p.usuario.usuario = :usuario   
+    </query>
+</queries>

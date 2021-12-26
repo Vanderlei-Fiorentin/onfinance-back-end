@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<queries>
+    <query name="findFaturasVencidasZeradas">        
+        SELECT DISTINCT fatura
+          FROM FaturaEntity fatura
+               INNER JOIN ParcelaLanctoContabilEntity parcela ON(parcela.fatura = fatura)
+         WHERE (:tipo = 'T' OR parcela.lanctoContabil.tipoLancto = :tipo)
+           AND fatura.vencimento < :dataAtual
+           AND fatura.valor = 0
+           AND NOT EXISTS(SELECT 1 
+                            FROM PagamentoEntity pagamento
+                           WHERE pagamento.fatura = fatura)        
+    </query>
+</queries>

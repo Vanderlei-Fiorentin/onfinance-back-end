@@ -1,0 +1,63 @@
+<?xml version="1.0"?>
+<queries>
+    <query name="findByParcela">        
+        SELECT p.lanctoContabil
+          FROM ParcelaLanctoContabilEntity p
+         WHERE p.id = :idParcela        
+    </query>
+    <query name="findByFatura">        
+        SELECT p.lanctoContabil
+          FROM ParcelaLanctoContabilEntity p
+         WHERE p.fatura.id = :idFatura        
+    </query>
+    <query name="findLanctosEntradaFixosByDataLancto">        
+        SELECT lancto
+          FROM LanctoContabilEntity lancto
+         WHERE lancto.tipoPagto = 'F'
+           AND lancto.tipoLancto = 'E'
+           AND lancto.ativo = :status
+           AND lancto.dataLancto BETWEEN :dataInicial AND :dataFinal       
+    </query>
+    <query name="findLanctosSaidaFixosByDataLancto">        
+        SELECT lancto
+          FROM LanctoContabilEntity lancto
+         WHERE lancto.tipoPagto = 'F'
+           AND lancto.tipoLancto = 'S'
+           AND lancto.ativo = :status
+           AND lancto.dataLancto BETWEEN :dataInicial AND :dataFinal        
+    </query>
+    <query name="findLanctosByFiltro">        
+        SELECT lancto
+          FROM LanctoContabilEntity lancto
+         WHERE (:tipo = 'T' OR lancto.tipoLancto = :tipo)
+           AND (:situacao = 'todas'
+                OR (:situacao = 'abertas' AND EXISTS(SELECT 1
+                                                       FROM ParcelaLanctoContabilEntity parcela
+                                                      WHERE parcela.lanctoContabil.id = lancto.id
+                                                        AND COALESCE((SELECT SUM(pagamento.valor) 
+                                                                        FROM PagamentoEntity pagamento 
+                                                                       WHERE pagamento.fatura = parcela.fatura), 0) < parcela.fatura.valor))
+                OR (:situacao = 'atrasadas' AND EXISTS(SELECT 1
+                                                         FROM ParcelaLanctoContabilEntity parcela
+                                                        WHERE parcela.lanctoContabil.id = lancto.id
+                                                          AND parcela.vencimento < :today
+                                                          AND COALESCE((SELECT SUM(pagamento.valor) 
+                                                                          FROM PagamentoEntity pagamento 
+                                                                         WHERE pagamento.fatura = parcela.fatura), 0) < parcela.fatura.valor))
+                OR (:situacao = 'pagas' AND EXISTS(SELECT 1
+                                                     FROM ParcelaLanctoContabilEntity parcela
+                                                    WHERE parcela.lanctoContabil.id = lancto.id
+                                                      AND COALESCE((SELECT SUM(pagamento.valor) 
+                                                                      FROM PagamentoEntity pagamento 
+                                                                     WHERE pagamento.fatura = parcela.fatura), 0) >= parcela.fatura.valor))
+                OR (:situacao = 'avencer' AND EXISTS(SELECT 1
+                                                       FROM ParcelaLanctoContabilEntity parcela
+                                                      WHERE parcela.lanctoContabil.id = lancto.id
+                                                        AND parcela.vencimento >= :today
+                                                        AND COALESCE((SELECT SUM(pagamento.valor) 
+                                                                        FROM PagamentoEntity pagamento 
+                                                                       WHERE pagamento.fatura = parcela.fatura), 0) < parcela.fatura.valor))
+                )
+         ORDER BY lancto.dataLancto
+    </query>
+</queries>

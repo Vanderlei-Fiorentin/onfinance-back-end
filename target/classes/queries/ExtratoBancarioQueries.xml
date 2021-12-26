@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<queries>
+    <query name="findByPeriodoAndConta">  
+        SELECT extrato
+          FROM ExtratoBancarioEntity extrato
+         WHERE extrato.conta.id = :conta
+           AND extrato.dataOperacao BETWEEN :dataInicial AND :dataFinal
+           AND (:operacao = 'T' OR extrato.operacao = :operacao)
+         ORDER BY extrato.dataOperacao ASC, extrato.id ASC    
+    </query>
+</queries>
