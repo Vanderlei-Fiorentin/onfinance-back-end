@@ -49,6 +49,7 @@ public class AvisoFaturasVencidasPeriodicAction {
 
                 List<PagamentoEntity> faturas = session.get(PagamentoRepository.class).findPagamentosByFiltro(inicio, fim, "V", "S", List.of("TD"), 0, 0);
                 EmailServiceUtil emailService = new EmailServiceUtil();
+                String token = (String) emailService.login().body();
 
                 faturas.forEach((fatura) -> {
                     try {
@@ -64,8 +65,8 @@ public class AvisoFaturasVencidasPeriodicAction {
                             String vencimento = fatura.getFatura().getVencimento().format(formatter);
                             String subject = "Fatura ".concat(fatura.getFatura().getEmpresa().getNome()).concat(" - Vencto ").concat(vencimento);
                             String bodyText = message(fatura);
-                            EmailDto email = new EmailDto("Onfinance", emailFrom, usuario.getEmail(), subject, bodyText);
-                            emailService.send(email, 5);
+                            EmailDto email = new EmailDto("Onfinance", emailFrom, usuario.getEmail(), subject, bodyText);                            
+                            emailService.send(email, token, 5);
                         }
 
                     } catch (Exception ex) {

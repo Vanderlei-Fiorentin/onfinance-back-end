@@ -6,16 +6,12 @@ import com.onfinance.dtos.LoginDto;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.http.HttpRequest;
-import java.security.NoSuchAlgorithmException;
 import java.time.Duration;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.logging.Level;
-import org.apache.http.ParseException;
 import java.net.http.HttpResponse;
 
 /**

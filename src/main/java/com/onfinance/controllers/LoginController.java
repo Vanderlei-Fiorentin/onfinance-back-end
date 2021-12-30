@@ -46,13 +46,13 @@ public class LoginController {
                 return jwtModel;
             }
         }
-        
+
         return null;
     }
 
     public void alterarSenha(String jwtToken, String senha) throws Exception {
         DecodedJWT decode = new JwtController().decodeToken(jwtToken);
-        String nomeUsuario = decode.getClaim("Usuario").asString(); 
+        String nomeUsuario = decode.getClaim("Usuario").asString();
         UsuarioEntity usuario;
 
         try ( HibernateSession session = HibernateSession.getHibernateSession()) {
@@ -81,7 +81,8 @@ public class LoginController {
             String bodyText = message(usuario, token);
 
             EmailDto emailModel = new EmailDto("Onfinance", emailFrom, email, subject, bodyText);
-            emailService.send(emailModel, 5);
+            String tokenEmail = (String) emailService.login().body();
+            emailService.send(emailModel, tokenEmail, 5);
 
         } catch (Exception ex) {
             LogUtil.getLogger().log(Level.SEVERE, "{0}: {1} {2} \n {3}", new Object[]{LocalDateTime.now(), "Erro ao redefinir senha!", ex});
@@ -96,7 +97,7 @@ public class LoginController {
                 .concat("\n\n")
                 .concat("Link para redefinir credenciais:")
                 .concat("\n")
-                .concat(ServicePath.ONFINANCE_FRONTEND + "#/login/redefinir-senha?token=")
+                .concat(String.format("%s/%s", ServicePath.ONFINANCE_FRONTEND, "#/login/redefinir-senha?token="))
                 .concat(token)
                 .concat("\n\n")
                 .concat("Esse link irá expirar em 60 minutos.")

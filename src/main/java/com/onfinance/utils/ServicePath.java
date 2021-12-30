@@ -35,9 +35,8 @@ public final class ServicePath {
     public static final String EVENTOS_LANCTO_ENTRADA = BASE + "/eventos-lancto-entrada";
     public static final String SAIDAS_LANCTO_ENTRADA = BASE + "/saidas-lancto-entrada";
     public static final String TRANSFERENCIA_BANCARIA = BASE + "/transferencias-bancarias";
-    public static final String UPLOAD_GOOGLE_DRIVE = "http://localhost:3000/api/files/";
     public static final String GERENCIADOR_ARQUIVOS = "http://localhost:3000";
-    public static final String ONFINANCE_FRONTEND = "http://localhost:4200/";
-    public static final String EMAIL_SERVICE = "http://localhost:8082/sending-email";
+    public static final String ONFINANCE_FRONTEND = "http://localhost:4200";
+    public static final String EMAIL_SERVICE = "http://localhost:8082";
 
 }
