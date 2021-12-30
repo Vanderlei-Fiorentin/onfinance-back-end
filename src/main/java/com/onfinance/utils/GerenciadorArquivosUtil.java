@@ -24,35 +24,6 @@ import java.net.http.HttpResponse;
  */
 public class GerenciadorArquivosUtil {
 
-    public HttpResponse send(File file, String fileName, int timeout) throws JsonProcessingException, FileNotFoundException {
-
-        String uri = ServicePath.UPLOAD_GOOGLE_DRIVE + fileName;
-
-        LogUtil.getLogger().log(Level.INFO, "{0}: Requisição para: {1}", new Object[]{LocalDateTime.now(), uri});
-
-        try {
-            InputStream inputStream = new FileInputStream(file);
-
-            String password = PropertyUtil.get("com.gerenciadorarquivos.password").concat(String.valueOf(LocalDate.now()));
-            String authorization = new HashMD5().hashing(password).toLowerCase();
-
-            HttpRequest request = HttpRequest.newBuilder()
-                    .POST(HttpRequest.BodyPublishers.ofInputStream(() -> inputStream))
-                    .uri(URI.create(uri))
-                    .header("Content-Type", "application/octet-stream")
-                    .header("Authorization", authorization)
-                    .timeout(Duration.ofSeconds(timeout))
-                    .build();
-
-            return HttpUtil.post(request, timeout);
-        } catch (IOException | ParseException ex) {
-            LogUtil.getLogger().log(Level.SEVERE, "{0}: {1} \n {2}", new Object[]{LocalDateTime.now(), "Erro ao realizar upload para o Google Drive!", ex});
-        } catch (NoSuchAlgorithmException ex) {
-            LogUtil.getLogger().log(Level.SEVERE, "{0}: {1} \n {2}", new Object[]{LocalDateTime.now(), "Erro ao gerar token!", ex});
-        }
-        return null;
-    }
-
     public HttpResponse send(File file, String fileName, String token, int timeout) throws Exception {
 
         String folder = PropertyUtil.get("com.google.drive.documentos");
@@ -107,7 +78,7 @@ public class GerenciadorArquivosUtil {
     }
 
     public HttpResponse getFileByLancto(String fileId) throws JsonProcessingException, FileNotFoundException {
-        
+
         String token = (String) login().body();
 
         String uri = String.format("%s/%s/%s", ServicePath.GERENCIADOR_ARQUIVOS, "files/id", fileId);
