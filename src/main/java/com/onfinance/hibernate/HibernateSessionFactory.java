@@ -27,7 +27,7 @@ public class HibernateSessionFactory {
         try {
             com.onfinance.hibernate.Environment environment;
             
-            boolean production = Boolean.valueOf(PropertyUtil.get("com.onfinance.production"));
+            boolean production = PropertyUtil.getBoolean("com.onfinance.production");
             String mensagem = "Sistema rodando em ambiente de ".concat((production) ? "produção" : "teste ...");
             
             LogUtil.getLogger().log(Level.INFO, "{0}: {1} {2}", new Object[]{LocalDateTime.now(), mensagem});

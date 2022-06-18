@@ -1,4 +1,3 @@
-
 package com.onfinance.hibernate;
 
 import com.onfinance.utils.PropertyUtil;
@@ -24,9 +23,9 @@ public class EnvironmentDev implements Environment {
         setUrl(PropertyUtil.get("dev.hibernate.connection.url"));
         setUser(PropertyUtil.get("dev.hibernate.connection.username"));
         setPassword(PropertyUtil.get("dev.hibernate.connection.password"));
-        setAutoCommit(Boolean.valueOf(PropertyUtil.get("dev.hibernate.connection.autocommit")));
-        setShowSql(Boolean.valueOf(PropertyUtil.get("dev.show_sql")));
-        setFormatSql(Boolean.valueOf(PropertyUtil.get("dev.format_sql")));
+        setAutoCommit(PropertyUtil.getBoolean("dev.hibernate.connection.autocommit"));
+        setShowSql(PropertyUtil.getBoolean("dev.show_sql"));
+        setFormatSql(PropertyUtil.getBoolean("dev.format_sql"));
     }
 
     @Override
@@ -98,7 +97,7 @@ public class EnvironmentDev implements Environment {
     public final void setFormatSql(boolean formatSql) {
         this.formatSql = formatSql;
     }
-    
+
     @Override
     public final void setAutoCommit(boolean auto) {
         this.autoCommit = auto;

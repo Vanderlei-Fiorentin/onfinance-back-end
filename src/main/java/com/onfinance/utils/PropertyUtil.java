@@ -33,5 +33,17 @@ public class PropertyUtil {
         }
         return props.getProperty(chave);
     }
+    
+    public static Boolean getBoolean(String chave) {
+        return Boolean.parseBoolean(get(chave));
+    }
+    
+    public static int getInteger(String chave) {
+        return Integer.parseInt(get(chave));
+    }
+    
+    public static long getLong(String chave) {
+        return Long.parseLong(get(chave));
+    }
 
 }

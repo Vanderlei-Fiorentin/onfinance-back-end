@@ -23,9 +23,9 @@ public final class EnvironmentProd implements Environment {
         setUrl(PropertyUtil.get("prod.hibernate.connection.url"));
         setUser(PropertyUtil.get("prod.hibernate.connection.username"));
         setPassword(PropertyUtil.get("prod.hibernate.connection.password"));
-        setAutoCommit(Boolean.valueOf(PropertyUtil.get("prod.hibernate.connection.autocommit")));
-        setShowSql(Boolean.valueOf(PropertyUtil.get("prod.show_sql")));
-        setFormatSql(Boolean.valueOf(PropertyUtil.get("prod.format_sql")));
+        setAutoCommit(PropertyUtil.getBoolean("prod.hibernate.connection.autocommit"));
+        setShowSql(PropertyUtil.getBoolean("prod.show_sql"));
+        setFormatSql(PropertyUtil.getBoolean("prod.format_sql"));
     }
 
     @Override

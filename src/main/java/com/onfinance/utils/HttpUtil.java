@@ -30,7 +30,7 @@ public class HttpUtil {
                 Logger.getLogger(HttpUtil.class.getName()).log(Level.SEVERE, null, ex);
             }
         } catch (ParseException ex) {
-            LogUtil.getLogger().log(Level.SEVERE, "{0}: {1} \n {2}", new Object[]{LocalDateTime.now(), "Erro ao enviar e-mail!", ex});
+            LogUtil.getLogger().log(Level.SEVERE, "{0}: {1}", new Object[]{LocalDateTime.now(), ex});
         }
         return null;
     }
